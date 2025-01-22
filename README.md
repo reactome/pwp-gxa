@@ -47,7 +47,7 @@ Then add the GXA dependency
         <dependency>
             <groupId>uk.ac.ebi.pwp.widgets</groupId>
             <artifactId>gxa</artifactId>
-            <version>2.3.1</version>
+            <version>3.1.1</version>
         </dependency>
     <dependencies>
 ```
