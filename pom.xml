@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <!-- POM file generated with GWT webAppCreator -->
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"><!-- POM file generated with GWT webAppCreator -->
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.reactome.maven</groupId>
+        <artifactId>reactome-pwp-parent</artifactId>
+        <version>1.0.4</version>
+    </parent>
 
     <groupId>org.reactome.pwp.widgets</groupId>
     <artifactId>gxa</artifactId>
-    <version>3.1.4-SNAPSHOT</version>
+    <version>3.1.4</version>
     <packaging>jar</packaging>
 
     <name>GXA Viewer</name>
     <description>Shows a summary of the gene expression data available in Gene Expression Atlas (GXA)</description>
     <url>https://github.com/reactome/pwp-gxa</url>
-
     <organization>
         <name>Reactome</name>
         <url>https://reactome.org</url>
     </organization>
-
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
@@ -54,12 +54,22 @@
         <developerConnection>scm:git:ssh://github.com:reactome/pwp-gxa.git</developerConnection>
         <url>https://github.com/reactome/pwp-gxa/tree/master</url>
     </scm>
+    <!-- Configures the distribution to nexus repository -->
+    <distributionManagement>
+        <!-- Sonatype Release repo -->
+        <repository>
+            <id>ossrh</id>
+            <name>Sonatype Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
 
-    <parent>
-        <groupId>org.reactome.maven</groupId>
-        <artifactId>reactome-pwp-parent</artifactId>
-        <version>1.0.3</version>
-    </parent>
+        <!-- Sonatype SNAPSHOT repo -->
+        <snapshotRepository>
+            <id>ossrh</id>
+            <name>Sonatype Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <!-- build -->
@@ -68,18 +78,9 @@
         <appName>${appModule}</appName>
         <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
 
-        <!-- maven build and plugins -->
+        <!-- maven build and plug<ins -->
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-
-        <maven.deploy.version>2.8.2</maven.deploy.version>
-        <maven.jar.version>2.6</maven.jar.version>
-        <maven.source.version>2.4</maven.source.version>
-        <maven.war.version>2.1.1</maven.war.version>
-        <maven.javadoc.version>3.11.2</maven.javadoc.version>
-        <maven.gpg.version>3.2.7</maven.gpg.version>
-        <maven.release.version>3.3.1</maven.release.version>
-        <nexus-staging-maven-plugin>1.7.0</nexus-staging-maven-plugin>
     </properties>
 
     <dependencies>
@@ -144,10 +145,49 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <!-- Generate compiled stuff in the folder used for developing mode -->
-        <outputDirectory>${webappDirectory}/WEB-INF/classes</outputDirectory>
+    <repositories>
+        <!-- EBI repo -->
+        <repository>
+            <id>nexus-ebi-repo</id>
+            <name>The EBI internal repository</name>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <!-- EBI SNAPSHOT repo -->
+        <repository>
+            <id>nexus-ebi-snapshot-repo</id>
+            <name>The EBI internal snapshot repository</name>
+            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
+    <build><!-- Generate compiled stuff in the folder used for developing mode -->
+        <outputDirectory>${webappDirectory}/WEB-INF/classes</outputDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -310,8 +350,22 @@
                     <goals>deploy</goals>
                 </configuration>
             </plugin>
-        </plugins>
 
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tidy-maven-plugin</artifactId>
+                <version>${maven.tidy.version}</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
         <!-- scp support for deployment (MVN 3) -->
         <extensions>
             <extension>
@@ -338,63 +392,4 @@
             </plugin>
         </plugins>
     </reporting>
-
-    <repositories>
-        <!-- EBI repo -->
-        <repository>
-            <id>nexus-ebi-repo</id>
-            <name>The EBI internal repository</name>
-            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <!-- EBI SNAPSHOT repo -->
-        <repository>
-            <id>nexus-ebi-snapshot-repo</id>
-            <name>The EBI internal snapshot repository</name>
-            <url>https://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <!-- Configures the distribution to nexus repository -->
-    <distributionManagement>
-        <!-- Sonatype Release repo -->
-        <repository>
-            <id>ossrh</id>
-            <name>Sonatype Release Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-
-        <!-- Sonatype SNAPSHOT repo -->
-        <snapshotRepository>
-            <id>ossrh</id>
-            <name>Sonatype Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>central</id>
-            <name>Central Repository</name>
-            <url>https://repo.maven.apache.org/maven2</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
